@@ -25,3 +25,23 @@ class Recipe(models.Model):
     ingredients = models.TextField()
     cook_time = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now=True)
+
+class Product(models.Model):
+
+    name = models.CharField(max_length=70)
+    description = models.TextField()
+    price = models.DecimalField(decimal_places=2, max_digits=10)
+    created_at = models.DateTimeField(auto_now=True)
+
+
+class UserProfile(models.Model):
+
+    username = models.CharField(max_length=65, unique=True)
+    first_name = models.CharField(max_length=40, blank=True, null=True)
+    last_name = models.CharField(max_length=40, blank=True, null=True)
+    email = models.EmailField(unique=True, default="students@softuni.bg")
+    bio = models.TextField(max_length=120)
+    profile_image_url = models.URLField()
+    created_at = models.DateTimeField(auto_now=True)
+
+
