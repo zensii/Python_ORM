@@ -1,8 +1,32 @@
+import os
 
-from decouple import config
-DB_PASS = config('DB_PASS')
-DB_ADDRESS = config('DB_ADDRESS')
-DB_USER = config('DB_USER')
+# Manually load .env file
+def load_dotenv():
+    # Resolve project root path dynamically
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Two levels up from settings.py
+    env_path = os.path.join(project_root, '.env')
+
+    if not os.path.exists(env_path):
+        raise FileNotFoundError(f".env file not found at {env_path}")
+
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                key, value = line.split('=', 1)
+                os.environ[key.strip()] = value.strip()
+# Load .env file variables
+load_dotenv()
+
+DB_PASS = os.getenv('DB_PASS')
+DB_ADDRESS = os.getenv('DB_ADDRESS')
+DB_USER = os.getenv('DB_USER')
+
+# decouple does not work for Judge, had to do OS
+# from decouple import config
+# DB_PASS = config('DB_PASS')
+# DB_ADDRESS = config('DB_ADDRESS')
+# DB_USER = config('DB_USER')
 
 """
 Django settings for orm_skeleton project.
