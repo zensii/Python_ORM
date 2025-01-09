@@ -86,3 +86,11 @@ class Item(models.Model):
 
     def __str__(self):
         return f"A {self.rarity} {self.name} with price: {self.price} per item."
+
+
+class Smartphone(models.Model):
+
+    brand = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    category = models.CharField(max_length=20, default='No category')
+
