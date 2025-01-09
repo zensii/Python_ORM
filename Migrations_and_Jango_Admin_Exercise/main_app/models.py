@@ -77,3 +77,12 @@ class Person(models.Model):
         return f"Name: {self.name}"
 
 
+class Item(models.Model):
+
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+    rarity = models.CharField(max_length=20, default='No rarity')
+
+    def __str__(self):
+        return f"A {self.rarity} {self.name} with price: {self.price} per item."

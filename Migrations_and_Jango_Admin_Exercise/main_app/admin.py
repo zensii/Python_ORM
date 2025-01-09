@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from main_app.models import EventRegistration, Movie, Student, Supplier, Course
+from main_app.models import EventRegistration, Movie, Student, Supplier, Course, Item
 
 
 # Register your models here.
@@ -83,3 +83,8 @@ class CourseAdmin(admin.ModelAdmin):
             ],
         }),
     ]
+
+@admin.register(Item)
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'rarity', 'quantity' )
+    list_filter = ("rarity",)
