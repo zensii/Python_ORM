@@ -44,4 +44,17 @@ def add_students():
         email='bob.wilson@university.com'
     )
 
+
+def get_students_info():
+    students = Student.objects.all()
+    info = []
+
+    for student in students:
+        info.append(f"Student №{student.student_id}: {student.first_name} {student.last_name}; Email: {student.email}")
+    return '\n'.join(info)
+
+
 # Run and print your queries
+
+
+
