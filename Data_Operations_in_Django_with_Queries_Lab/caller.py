@@ -53,6 +53,14 @@ def get_students_info():
         info.append(f"Student №{student.student_id}: {student.first_name} {student.last_name}; Email: {student.email}")
     return '\n'.join(info)
 
+def update_students_emails():
+    students = Student.objects.all()
+
+    for student in students:
+        email = student.email
+        new_email = email.split('@')[0] + '@uni-students.com'
+        student.email = new_email
+        student.save()
 
 # Run and print your queries
 
