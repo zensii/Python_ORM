@@ -1,4 +1,6 @@
 import os
+from operator import is_not
+
 import django
 
 
@@ -8,7 +10,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Pet,Artifact,Location,Car
+from main_app.models import Pet,Artifact,Location,Car,Task
 
 
 def create_pet(name: str, species: str):
@@ -71,3 +73,23 @@ def get_recent_cars():
 
 def delete_last_car():
     Car.objects.last().delete()
+
+
+def show_unfinished_tasks():
+    unfinished = Task.objects.filter(is_finished=False)
+    return '\n'.join(str(task) for task in unfinished)
+
+
+def complete_odd_tasks():
+
+    tasks = Task.objects.all()
+    odd_tasks = [task for task in tasks if task.id % 2 == 1]
+    for task in odd_tasks:
+        task.is_finished = True
+    Task.objects.bulk_update(odd_tasks, ['is_finished'])
+
+def encode_and_replace(text: str, task_title: str):
+    tasks = Task.objects.filter(title=task_title)
+    for task in tasks:
+        task.description = ''.join(chr(ord(char)-3) for char in text)
+        task.save()
