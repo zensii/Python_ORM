@@ -1,3 +1,5 @@
+from random import choices
+
 from django.db import models
 
 class Pet(models.Model):
@@ -37,3 +39,20 @@ class Task(models.Model):
 
     def __str__(self):
         return f"Task - {self.title} needs to be done until {self.due_date}!"
+
+class RoomChoice(models.TextChoices):
+    STANDARD = 'Standard'
+    DELUXE = 'Deluxe'
+    SUITE = ' Suite'
+
+class HotelRoom(models.Model):
+    room_number = models.PositiveIntegerField()
+    room_type = models.CharField(max_length=10, choices=RoomChoice.choices)
+    capacity = models.PositiveIntegerField()
+    amenities = models.TextField()
+    price_per_night = models.DecimalField(max_digits=8, decimal_places=2)
+    is_reserved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Deluxe room with number {self.room_number} costs {self.price_per_night}$ per night!"
+

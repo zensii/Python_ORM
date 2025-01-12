@@ -10,7 +10,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Pet,Artifact,Location,Car,Task
+from main_app.models import Pet,Artifact,Location,Car,Task,HotelRoom
 
 
 def create_pet(name: str, species: str):
@@ -93,3 +93,33 @@ def encode_and_replace(text: str, task_title: str):
     for task in tasks:
         task.description = ''.join(chr(ord(char)-3) for char in text)
         task.save()
+
+
+def get_deluxe_rooms():
+    result = []
+    all_deluxe_rooms = HotelRoom.objects.filter(room_type='Deluxe')
+    for room in all_deluxe_rooms:
+        if room.id % 2 == 0:
+            result.append(str(room))
+    return '\n'.join(result)
+
+def increase_room_capacity():
+    rooms = HotelRoom.objects.order_by('id')
+
+    for number, room in enumerate(rooms):
+        if room.is_reserved:
+            if room.id == rooms[0].id:
+                room.capacity += int(room.id)
+            else:
+                room.capacity += rooms[number-1].capacity
+        room.save()
+
+def reserve_first_room():
+    first_room = HotelRoom.objects.first()
+    first_room.is_reserved = True
+    first_room.save()
+
+def delete_last_room():
+    last_room = HotelRoom.objects.last()
+    if not last_room.is_reserved:
+        last_room.delete()
