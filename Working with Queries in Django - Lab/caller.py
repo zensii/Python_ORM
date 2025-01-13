@@ -59,3 +59,10 @@ def add_records_to_database():
 
 # Run and print your queries
 # print(add_records_to_database())
+
+def find_books_by_genre_and_language(book_genre, book_language):
+
+    books = Book.objects.filter(genre=book_genre, language=book_language)
+    return books
+
+
