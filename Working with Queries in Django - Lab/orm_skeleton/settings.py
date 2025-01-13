@@ -35,22 +35,22 @@ DB_PASS = os.getenv('DB_PASS')
 DB_ADDRESS = os.getenv('DB_ADDRESS')
 DB_USER = os.getenv('DB_USER')
 
-LOGGING = {
- 'version': 1,
- 'disable_existing_loggers': False,
- 'handlers': {
- 'console': {
- 'class': 'logging.StreamHandler'}},
- 'root': {
- 'handlers': ['console'],
- 'level': 'DEBUG',
- },
- 'loggers': {
- 'django.db.backends': {
- 'handlers': ['console'],
- 'level': 'DEBUG',
- 'propagate': False,
- }}}
+# LOGGING = {
+#  'version': 1,
+#  'disable_existing_loggers': False,
+#  'handlers': {
+#  'console': {
+#  'class': 'logging.StreamHandler'}},
+#  'root': {
+#  'handlers': ['console'],
+#  'level': 'DEBUG',
+#  },
+#  'loggers': {
+#  'django.db.backends': {
+#  'handlers': ['console'],
+#  'level': 'DEBUG',
+#  'propagate': False,
+#  }}}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

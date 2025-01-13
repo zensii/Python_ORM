@@ -79,3 +79,16 @@ def delete_review_by_id(review_id):
     obj.delete()
     return result
 
+def filter_authors_by_nationalities(nationality):
+    authors = Author.objects.filter(nationality=nationality).order_by('first_name', 'last_name')
+    return '\n'.join(a.biography if a.biography else str(a) for a in authors)
+
+def filter_authors_by_birth_year(first_year, second_year):
+    authors = Author.objects.filter(birth_date__year__gte=first_year, birth_date__year__lte=second_year).order_by('-birth_date')
+
+    return '\n'.join(a.birth_date.__str__() + f': {str(a)}' for a in authors)
+
+def change_reviewer_name(reviewer_name, new_name):
+    Review.objects.filter(reviewer_name=reviewer_name).update(reviewer_name=new_name)
+    results = Review.objects.all()
+    return results
