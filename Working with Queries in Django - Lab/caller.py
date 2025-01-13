@@ -65,4 +65,17 @@ def find_books_by_genre_and_language(book_genre, book_language):
     books = Book.objects.filter(genre=book_genre, language=book_language)
     return books
 
+def find_authors_nationalities():
+    results = Author.objects.filter(nationality__isnull=False)
+    return '\n'.join(str(result) + f' is {result.nationality}' for result in results)
+
+def order_books_by_year():
+    books = Book.objects.order_by('publication_year', 'title')
+    return '\n'.join(str(b.publication_year) + f' year: {b.title} by {b.author}' for b in books)
+
+def delete_review_by_id(review_id):
+    obj = Review.objects.get(id=review_id)
+    result = f"Review by {obj.reviewer_name} was deleted"
+    obj.delete()
+    return result
 
