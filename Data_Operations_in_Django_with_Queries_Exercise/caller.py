@@ -112,7 +112,7 @@ def increase_room_capacity():
                 room.capacity += int(room.id)
             else:
                 room.capacity += rooms[number-1].capacity
-        room.save()
+    HotelRoom.objects.bulk_update(rooms, ['capacity'])
 
 def reserve_first_room():
     first_room = HotelRoom.objects.first()
