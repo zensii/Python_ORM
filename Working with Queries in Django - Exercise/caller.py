@@ -11,7 +11,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models
-from main_app.models import ArtworkGallery, Laptop, ChessPlayer, Meal
+from main_app.models import ArtworkGallery, Laptop, ChessPlayer, Meal, Dungeon
 
 
 # Create and check models
@@ -139,4 +139,98 @@ def update_high_calorie_meals():
 
 def delete_lunch_and_snack_meals():
     Meal.objects.filter(meal_type__in=['Lunch', 'Snack']).delete()
+
+def show_hard_dungeons():
+    hard_dungeons = Dungeon.objects.filter(difficulty='Hard').order_by('-location')
+    return '\n'.join(f'{d.name} is guarded by {d.boss_name} who has {d.boss_health} health points!' for d in hard_dungeons)
+
+def bulk_create_dungeons(args: List[Dungeon]):
+    Dungeon.objects.bulk_create(args)
+
+def update_dungeon_names():
+    Dungeon.objects.update(
+        name=Case(
+            When(difficulty='Easy', then=Value('The Erased Thombs')),
+            When(difficulty='Medium', then=Value('The Coral Labyrinth')),
+            When(difficulty='Hard', then=Value('The Lost Haunt'))
+        )
+    )
+
+def update_dungeon_bosses_health():
+    Dungeon.objects.exclude(difficulty='Easy').update(boss_health=500)
+
+def update_dungeon_recommended_levels():
+    Dungeon.objects.update(
+        recommended_level=Case(
+            When(difficulty='Easy', then=Value(25)),
+            When(difficulty='Medium', then=Value(50)),
+            When(difficulty='Hard', then=Value(75))
+        )
+    )
+
+def update_dungeon_rewards():
+    Dungeon.objects.update(
+        reward=Case(
+            When(boss_health=500, then=Value('1000 Gold')),
+            When(location__startswith='E', then=Value('New dungeon unlocked')),
+            When(location__endswith='s', then=Value('Dragonheart Amulet'))
+        )
+    )
+    # Dungeon.objects.filter(boss_health=500).update(reward='1000 Gold')
+    # Dungeon.objects.filter(location__startswith='E').update(reward='New dungeon unlocked')
+    # Dungeon.objects.filter(location__endswith='s').update(reward='Dragonheart Amulet')
+
+def set_new_locations():
+    Dungeon.objects.filter()
+    Dungeon.objects.update(
+        location=Case(
+            When(recommended_level=25, then=Value('Enchanted Maze')),
+            When(recommended_level=50, then=Value('Grimstone Mines')),
+            When(recommended_level=75, then=Value('Shadowed Abyss'))
+        )
+    )
+
+# # Create two instances
+# dungeon1 = Dungeon(
+#     name="Dungeon 1",
+#     boss_name="Boss 1",
+#     boss_health=1000,
+#     recommended_level=75,
+#     reward="Gold",
+#     location="Eternal Hell",
+#     difficulty="Hard",
+# )
+#
+# dungeon2 = Dungeon(
+#     name="Dungeon 2",
+#     boss_name="Boss 2",
+#     boss_health=400,
+#     recommended_level=25,
+#     reward="Experience",
+#     location="Crystal Caverns",
+#     difficulty="Easy",
+# )
+#
+# # Bulk save the instances
+# bulk_create_dungeons([dungeon1, dungeon2])
+#
+# # Update boss's health
+# update_dungeon_bosses_health()
+#
+# # Show hard dungeons
+# hard_dungeons_info = show_hard_dungeons()
+# print(hard_dungeons_info)
+#
+# # Change dungeon names based on difficulty
+# update_dungeon_names()
+# dungeons = Dungeon.objects.order_by('boss_health')
+# print(dungeons[0].name)
+# print(dungeons[1].name)
+#
+# # Change the dungeon rewards
+# update_dungeon_rewards()
+# dungeons = Dungeon.objects.order_by('boss_health')
+# print(dungeons[0].reward)
+# print(dungeons[1].reward)
+
 
