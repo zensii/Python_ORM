@@ -11,7 +11,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models
-from main_app.models import ArtworkGallery, Laptop, ChessPlayer, Meal, Dungeon
+from main_app.models import ArtworkGallery, Laptop, ChessPlayer, Meal, Dungeon, Workout
 
 
 # Create and check models
@@ -234,3 +234,72 @@ def set_new_locations():
 # print(dungeons[1].reward)
 
 
+def show_workouts():
+    workouts = Workout.objects.filter(workout_type__in=["Calisthenics", "CrossFit" ]).order_by('id')
+    return '\n'.join(f"{w.name} from {w.workout_type} type has {w.difficulty} difficulty!" for w in workouts)
+
+def get_high_difficulty_cardio_workouts():
+   return Workout.objects.filter(workout_type='Cardio', difficulty='High').order_by('instructor')
+
+def set_new_instructors():
+    Workout.objects.update(
+        instructor=Case(
+            When(workout_type='Cardio', then=Value('John Smith')),
+            When(workout_type='Strength', then=Value('Michael Williams')),
+            When(workout_type='Yoga', then=Value('Emily Johnson')),
+            When(workout_type='CrossFit', then=Value('Sarah Davis')),
+            When(workout_type='Calisthenics', then=Value('Chris Heria')),
+
+        )
+    )
+
+def set_new_duration_times():
+    Workout.objects.update(
+        duration=Case(
+            When(instructor='John Smith', then=Value('15 minutes')),
+            When(instructor='Sarah Davis', then=Value('30 minutes')),
+            When(instructor='Chris Heria', then=Value('45 minutes')),
+            When(instructor='Michael Williams', then=Value('1 hour')),
+            When(instructor='Emily Johnson', then=Value('1 hour and 30 minutes')),
+
+        )
+    )
+
+def delete_workouts():
+    Workout.objects.exclude(workout_type__in=["Strength", "Calisthenics"]).delete()
+
+#
+# # Create two Workout instances
+# workout1 = Workout.objects.create(
+#     name="Push-Ups",
+#     workout_type="Calisthenics",
+#     duration="10 minutes",
+#     difficulty="Intermediate",
+#     calories_burned=200,
+#     instructor="Bob"
+# )
+#
+# workout2 = Workout.objects.create(
+#     name="Running",
+#     workout_type="Cardio",
+#     duration="30 minutes",
+#     difficulty="High",
+#     calories_burned=400,
+#     instructor="Lilly"
+# )
+#
+# # Run the functions
+# print(show_workouts())
+#
+# high_difficulty_cardio_workouts = get_high_difficulty_cardio_workouts()
+# for workout in high_difficulty_cardio_workouts:
+#     print(f"{workout.name} by {workout.instructor}")
+#
+# set_new_instructors()
+# for workout in Workout.objects.all():
+#     print(f"Instructor: {workout.instructor}")
+#
+# set_new_duration_times()
+# for workout in Workout.objects.all():
+#     print(f"Duration: {workout.duration}")
+#
