@@ -8,3 +8,4 @@ django.setup()
 # Import your models here
 
 # Create queries within functions
+from main_app.models import Subject, Student
