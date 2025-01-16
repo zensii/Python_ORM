@@ -8,7 +8,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Book, Author
+from main_app.models import Book, Author, Artist, Song
+
+
 # Create queries within functions
 
 def show_all_authors_with_their_books():
@@ -27,36 +29,15 @@ def delete_all_authors_without_books():
         if not author.books.all():
             author.delete()
 
-# Create authors
-author1 = Author.objects.create(name="J.K. Rowling")
-author2 = Author.objects.create(name="George Orwell")
-author3 = Author.objects.create(name="Harper Lee")
-author4 = Author.objects.create(name="Mark Twain")
+def add_song_to_artist(artist_name: str, song_title: str):
+    artist = Artist.objects.get(name=artist_name)
+    song = Song.objects.get(title=song_title)
+    artist.songs.add(song)
 
-# Create books associated with the authors
-book1 = Book.objects.create(
-    title="Harry Potter and the Philosopher's Stone",
-    price=19.99,
-    author=author1
-)
-book2 = Book.objects.create(
-    title="1984",
-    price=14.99,
-    author=author2
-)
+def get_songs_by_artist(artist_name: str):
+    return Artist.objects.get(name=artist_name).songs.all().order_by('-id')
 
-book3 = Book.objects.create(
-    title="To Kill a Mockingbird",
-    price=12.99,
-    author=author3
-)
-
-# Display authors and their books
-authors_with_books = show_all_authors_with_their_books()
-print(authors_with_books)
-
-# Delete authors without books
-
-
-delete_all_authors_without_books()
-print(Author.objects.count())
+def remove_song_from_artist(artist_name: str, song_title: str):
+    artist = Artist.objects.get(name=artist_name)
+    song = Song.objects.get(title=song_title)
+    artist.songs.remove(song)
