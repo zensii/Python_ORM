@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import TextField, CASCADE
+from django.db.models import TextField, CASCADE, PositiveIntegerField
 
 
 # Create your models here.
@@ -36,3 +36,17 @@ class DrivingLicense(models.Model):
     license_number = models.CharField(max_length=10, unique=True)
     issue_date = models.DateField()
     driver = models.OneToOneField(to=Driver, on_delete=CASCADE, related_name='license')
+
+class Owner(models.Model):
+    name = models.CharField(max_length=50)
+
+class Car(models.Model):
+    model = models.CharField(max_length=50)
+    year = models.PositiveIntegerField()
+    owner = models.OneToOneField(to=Owner, on_delete=models.CASCADE, related_name='cars', blank=True, null=True)
+
+
+class Registration(models.Model):
+    registration_number = models.CharField(max_length=10, unique=True)
+    registration_date = models.DateField(blank=True, null=True)
+    car = models.OneToOneField(to=Car, on_delete=models.CASCADE, related_name='registration', blank=True, null=True)

@@ -1,15 +1,15 @@
 import os
-from datetime import timedelta,date
-
+from datetime import timedelta, date
 import django
-
+from django.utils.timezone import now
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Book, Author, Artist, Song, Product, Review, Driver, DrivingLicense
+from main_app.models import Book, Author, Artist, Song, Product, Review, Driver, DrivingLicense, Owner, Registration, \
+    Car
 
 
 # Create queries within functions
@@ -74,3 +74,15 @@ def get_drivers_with_expired_licenses(due_date: date):
             expired.append(l)
     return Driver.objects.filter(license__in=expired)
 
+def register_car_by_owner(owner: Owner):
+    first_free_registration = Registration.objects.filter(car__isnull=True).first()
+    first_car_to_register = Car.objects.filter(registration__isnull=True).first()
+    first_car_to_register.registration = first_free_registration
+    first_car_to_register.owner = owner
+    first_car_to_register.save()
+    first_free_registration.registration_date = now()
+    first_free_registration.save()
+
+    return (f"Successfully registered {first_car_to_register.model} "
+            f"to {first_car_to_register.owner.name} with"
+            f" registration number {first_free_registration.registration_number}.")
