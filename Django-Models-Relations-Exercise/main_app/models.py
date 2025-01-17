@@ -50,3 +50,4 @@ class Registration(models.Model):
     registration_number = models.CharField(max_length=10, unique=True)
     registration_date = models.DateField(blank=True, null=True)
     car = models.OneToOneField(to=Car, on_delete=models.CASCADE, related_name='registration', blank=True, null=True)
+
