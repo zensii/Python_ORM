@@ -1,6 +1,7 @@
 import os
-import django
+from datetime import timedelta,date
 
+import django
 
 
 # Set up Django
@@ -8,7 +9,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Book, Author, Artist, Song, Product, Review
+from main_app.models import Book, Author, Artist, Song, Product, Review, Driver, DrivingLicense
 
 
 # Create queries within functions
@@ -56,4 +57,20 @@ def get_products_with_no_reviews():
 def delete_products_without_reviews():
     Product.objects.filter(reviews__isnull=True).delete()
 
+def calculate_licenses_expiration_dates():
+    result = []
+    licenses = DrivingLicense.objects.all().order_by('-license_number')
+    for l in licenses:
+        expiration_date = l.issue_date + timedelta(days=365)
+        result.append(f"License with number: {l.license_number} expires on {expiration_date}!")
+    return '\n'.join(result)
+
+def get_drivers_with_expired_licenses(due_date: date):
+    expired = []
+    licenses = DrivingLicense.objects.all()
+    for l in licenses:
+        expiration = l.issue_date + timedelta(days=365)
+        if expiration > due_date:
+            expired.append(l)
+    return Driver.objects.filter(license__in=expired)
 
