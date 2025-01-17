@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import TextField, CASCADE
+
 
 # Create your models here.
 class Author(models.Model):
@@ -16,4 +18,13 @@ class Song(models.Model):
 class Artist(models.Model):
     name = models.CharField(max_length=100, unique=True)
     songs = models.ManyToManyField(Song, related_name='artists')
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+
+class Review(models.Model):
+    description = TextField(max_length=200)
+    rating = models.PositiveIntegerField()
+    product = models.ForeignKey(to=Product, on_delete=models.CASCADE, related_name='reviews')
 
