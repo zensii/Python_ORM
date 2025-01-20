@@ -36,7 +36,28 @@ from main_app.models import ZooKeeper, Veterinarian
 # print(f"{veterinarian_from_db.first_name} {veterinarian_from_db.last_name} is a Veterinarian.")
 
 from main_app.models import ZooKeeper
+#
+# zookeeper = ZooKeeper(first_name="John", last_name="Doe", phone_number="0123456789", specialty="Fishes")
+# zookeeper.full_clean()
+# zookeeper.save()
 
-zookeeper = ZooKeeper(first_name="John", last_name="Doe", phone_number="0123456789", specialty="Fishes")
-zookeeper.full_clean()
-zookeeper.save()
+
+from main_app.models import ZooDisplayAnimal
+#
+# # Keep the data from the previous exercises, so you can reuse it
+#
+# all_animals_info = ZooDisplayAnimal.objects.all()
+# for a in all_animals_info:
+#     print(a.display_info())
+#     print(a.is_endangered())
+
+from datetime import date, timedelta
+from main_app.models import Mammal, Reptile
+
+lion_birth_date = date.today() - timedelta(days=731)
+lion = Mammal.objects.create(name="Simba", species="Lion", birth_date=lion_birth_date, sound="Roar", fur_color="Golden")
+print(f"The lion's age is {lion.age}.")
+
+snake_birth_date = date.today() - timedelta(days=30)
+snake = Reptile.objects.create(name="Kaa", species="Python", birth_date=snake_birth_date, sound="Hiss", scale_type="Scales")
+print(f"The snake's age is {snake.age}.")
