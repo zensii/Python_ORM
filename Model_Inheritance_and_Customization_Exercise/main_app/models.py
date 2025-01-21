@@ -1,4 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import TextField, IntegerField
+
 
 # Create your models here.
 class BaseCharacter(models.Model):
@@ -76,8 +79,25 @@ class Message(models.Model):
         new_message.save()
         return new_message
 
+class StudentIDField(models.PositiveIntegerField):
+    def to_python(self, value):
+        try:
+            return int(value)
+        except ValueError:
+            raise ValueError("Invalid input for student ID")
 
 
+    def get_prep_value(self, value):
+        cleaned_value = self.to_python(value)
+
+        if cleaned_value <= 0:
+            raise ValidationError("ID cannot be less than or equal to zero")
+
+        return cleaned_value
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    student_id = StudentIDField()
 
 
 
