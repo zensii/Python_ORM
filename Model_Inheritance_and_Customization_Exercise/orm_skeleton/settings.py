@@ -101,7 +101,7 @@ WSGI_APPLICATION = 'orm_skeleton.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "Django-Models-Relations-Exercise",
+        "NAME": "model_inheritance_and_customization_exercise",
         "USER": DB_USER,
         "PASSWORD": DB_PASS,
         "HOST": DB_ADDRESS,
