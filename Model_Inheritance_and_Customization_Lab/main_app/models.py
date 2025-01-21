@@ -1,8 +1,6 @@
-from datetime import datetime, date, timedelta
+from datetime import date
 from django.core.exceptions import ValidationError
 from django.db import models
-
-
 
 # Create your models here.
 class Animal(models.Model):
@@ -50,9 +48,16 @@ class ZooKeeper(Employee):
         if self.specialty not in Specialities:
             raise ValidationError('Specialty must be a valid choice.')
 
+class BooleanChoiceField(models.BooleanField):
+
+    def __init__(self, *args, **kwargs):
+        kwargs['choices'] = ((True, 'Available'), (False, 'Not Available'))
+        kwargs['default'] = True
+        super().__init__(*args, **kwargs)
 
 class Veterinarian(Employee):
     license_number = models.CharField(max_length=10)
+    availability = BooleanChoiceField()
 
 
 class ZooDisplayAnimal(Animal):
@@ -69,3 +74,4 @@ class ZooDisplayAnimal(Animal):
         if self.species in endangered:
             return f"{self.species} is at risk!"
         return f"{self.species} is not at risk."
+
