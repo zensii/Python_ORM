@@ -219,6 +219,8 @@ class SpecialReservation(BaseReservation):
         if room_reserved.exists():
             raise ValidationError("Error during extending reservation")
 
+        self.save()
+
         return f"Extended reservation for room {self.room.number} with {days} days"
 
 
