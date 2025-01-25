@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, RegexValidator, MinLengthValidator
 from django.db import models
@@ -90,4 +92,46 @@ class Music(BaseMedia):
         verbose_name = 'Model Music'
         verbose_name_plural = 'Models of type - Music'
 
+class Product(models.Model):
+
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    def calculate_tax(self):
+
+        return float(self.price) * 0.08
+
+    @staticmethod
+    def calculate_shipping_cost(weight: Decimal):
+
+        return float(weight) * 2.00
+
+    def format_product_name(self):
+
+        return f"Product: {self.name}"
+
+
+class DiscountedProduct(Product):
+
+    class Meta:
+        proxy=True
+
+    def calculate_price_without_discount(self):
+
+        return float(self.price) * 1.2
+
+    def calculate_tax(self):
+
+        return float(self.price) * 0.05
+
+    def calculate_shipping_cost(self, weight: Decimal):
+
+        return float(weight) * 1.5
+
+    def format_product_name(self):
+
+        return f"Discounted Product: {self.name}"
 
