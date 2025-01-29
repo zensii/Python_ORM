@@ -3,7 +3,7 @@ from pprint import pprint
 
 import django
 from django.db import connections, connection
-from django.db.models import Sum
+from django.db.models import Sum, Q, F
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -89,4 +89,27 @@ def ordered_products_per_customer():
 
     return '\n'.join(result)
 
-print(ordered_products_per_customer())
+# print(ordered_products_per_customer())
+
+def filter_products():
+    result = []
+    query = Q(is_available=True) & Q(price__gt=3.00)
+    filtered_products = Product.objects.filter(query).order_by('-price', 'name')
+    for product in filtered_products:
+        result.append(f"{product.name}: {product.price}lv.")
+
+    return '\n'.join(result)
+
+# print(filter_products())
+
+def give_discount():
+
+    result = []
+    query = Q(is_available=True) & Q(price__gt=3.00)
+    Product.objects.filter(query).update(price=F('price') * 0.7)
+    for product in Product.objects.filter(is_available=True).order_by('-price', 'name'):
+        result.append(f"{product.name}: {product.price}lv.")
+
+    return '\n'.join(result)
+
+# print(give_discount())
