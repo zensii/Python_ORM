@@ -1,5 +1,8 @@
 import os
+from pprint import pprint
+
 import django
+from django.db import connections, connection
 from django.db.models import Sum
 
 # Set up Django
@@ -62,14 +65,28 @@ def add_records_to_database():
 # Run and print your queries
 # print(add_records_to_database())
 
-def product_quantity_ordered():
-    result = []
-    ordered_products = Product.objects.annotate(
-        total_ordered=Sum('orderproduct__quantity')).exclude(total_ordered=0).order_by('-total_ordered')
+# def product_quantity_ordered():
+#     result = []
+#     ordered_products = Product.objects.annotate(
+#         total_ordered=Sum('orderproduct__quantity')).exclude(total_ordered=0).order_by('-total_ordered')
+#
+#     for product in ordered_products:
+#         result.append(f"Quantity ordered of {product.name}: {product.total_ordered}")
+#
+#     return '\n'.join(result)
+#
+# print(product_quantity_ordered())
 
-    for product in ordered_products:
-        result.append(f"Quantity ordered of {product.name}: {product.total_ordered}")
+def ordered_products_per_customer():
+    result = []
+    orders = Order.objects.prefetch_related('orderproduct_set__product__category').select_related('customer').order_by('id')
+
+    for order in orders:
+        result.append(f"Order ID: {order.id}, Customer: {order.customer.username}")
+
+        for ordered_product in order.orderproduct_set.all():
+            result.append(f"- Product: {ordered_product.product.name}, Category: {ordered_product.product.category.name}")
 
     return '\n'.join(result)
 
-print(product_quantity_ordered())
+print(ordered_products_per_customer())
