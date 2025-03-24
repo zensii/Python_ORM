@@ -1,8 +1,11 @@
 import os
+from decimal import Decimal
+
 import django
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.aggregates import Avg
+from django.db.models.functions import Least
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -142,3 +145,56 @@ def get_top_actor():
             f"starring in movies: {', '.join(movie.title for movie in starred_in)}, "
             f"movies average rating: {top_actor.starring_movies.aggregate(Avg('rating'))['rating__avg']:.1f}"
             )
+
+
+def get_actors_by_movies_count():
+    actors = Actor.objects.all().filter(actor_movies__isnull=False)
+
+    if not actors:
+        return ''
+
+    top_3 = (actors.annotate(
+        starred_movies_count=models.Count('actor_movies'))
+                 .order_by('-starred_movies_count', 'full_name')[:3]
+                 )
+    result = [f"{actor.full_name}, participated in {actor.starred_movies_count} movies" for actor in top_3]
+    return '\n'.join(result)
+
+
+def get_top_rated_awarded_movie():
+
+    top = Movie.objects.filter(is_awarded=True).order_by('-rating', 'title').first()
+
+    if not top:
+        return ''
+
+    return (f"Top rated awarded movie: {top.title}, "
+            f"rating: {top.rating:.1f}. "
+            f"Starring actor: {top.starring_actor.full_name if top.starring_actor else 'N/A'}. "
+            f"Cast: {', '.join(actor.full_name for actor in top.actors.all().order_by('full_name'))}.")
+print(get_top_rated_awarded_movie())
+
+# def increase_rating():
+#
+#     classics = Movie.objects.filter(is_classic=True, rating__lt=10.0)
+#
+#     if not classics:
+#         return "No ratings increased."
+#
+#     for classic in classics:
+#         classic.rating = min(10.0, classic.rating + Decimal(0.1))
+#         classic.save()
+#
+#     return f"Rating increased for {len(classics)} movies."
+
+
+def increase_rating():
+    # Get classics and update in one query
+    updated = Movie.objects.filter(
+        is_classic=True,
+        rating__lt=10.0
+    ).update(
+        rating=Least(10.0, F('rating') + Decimal('0.1'))
+    )
+
+    return f"Rating increased for {updated} movies." if updated else "No ratings increased."
