@@ -1,5 +1,8 @@
 import os
 import django
+from django.db import models
+from django.db.models import Q
+from django.db.models.aggregates import Avg
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -92,3 +95,50 @@ def populate_db():
     )
     movie_3.actors.add(actor_1, actor_2, actor_3)
 
+def get_directors(search_name=None, search_nationality=None):
+    director_obj = Director.objects.all()
+    filters = Q()
+    if not search_name and not search_nationality:
+        return ''
+    if search_name:
+        filters &= Q(full_name__icontains=search_name)
+    if search_nationality:
+        filters &= Q(nationality__icontains=search_nationality)
+
+    results = [
+        (f"Director: {director.full_name}, "
+         f"nationality: { director.nationality}, "
+         f"experience: {director.years_of_experience}"
+         ) for director in director_obj.filter(filters).order_by('full_name')
+    ]
+
+    return '\n'.join(results)
+
+
+def get_top_director():
+
+    best = Director.objects.get_directors_by_movies_count().first()
+    if best:
+        return f"Top Director: {best.full_name}, movies: {best.movies_count}."
+    return ''
+
+
+def get_top_actor():
+
+    best = Actor.objects.all()
+    top_actor = (best.annotate(
+        starred_movies_count=models.Count('starring_movies'))
+                 .order_by('-starred_movies_count', 'full_name')
+                 .first()
+                 )
+    if not top_actor:
+        return ''
+
+    starred_in = top_actor.starring_movies.all()
+    if not starred_in:
+        return ''
+
+    return (f"Top Actor: {top_actor.full_name}, "
+            f"starring in movies: {', '.join(movie.title for movie in starred_in)}, "
+            f"movies average rating: {top_actor.starring_movies.aggregate(Avg('rating'))['rating__avg']:.1f}"
+            )
