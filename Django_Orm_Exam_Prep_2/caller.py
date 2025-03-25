@@ -1,7 +1,6 @@
 import os
 import django
-
-
+from django.db.models import Q
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -59,4 +58,40 @@ def populate_db():
     order_2.products.add(product_1)
     order_2.products.add(product_1)
 
-populate_db()
+def get_profiles(search_string=None):
+    if search_string is not None:
+        search_results = Profile.objects.filter(
+            Q(full_name__icontains=search_string) |
+            Q(email__icontains=search_string) |
+            Q(phone_number__icontains=search_string)
+        ).order_by("full_name")
+
+        return '\n'.join([
+                f"Profile: {result.full_name}, "
+                f"email: {result.email}, "
+                f"phone number: {result.phone_number}, "
+                f"orders: {result.profile_orders.count()}"
+                for result in search_results
+        ])
+
+    return ''
+
+
+def get_loyal_profiles():
+    results = Profile.objects.get_regular_customers()
+
+    if results:
+        return '\n'.join([
+            f"Profile: {customer.full_name}, "
+            f"orders: {customer.orders_made}"
+            for customer in results
+        ])
+    return ''
+
+
+def get_last_sold_products():
+    last_order = Order.objects.all().order_by('-creation_date').first()
+
+    if last_order:
+        return f"Last sold products: {', '.join([product.name for product in last_order.products.all()])}"
+    return ''
