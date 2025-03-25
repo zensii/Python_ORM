@@ -1,7 +1,6 @@
 import os
 import django
 from django.db.models import Q, Count, F
-from django.forms.formsets import ORDERING_FIELD_NAME
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
