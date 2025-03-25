@@ -1,6 +1,7 @@
 import os
 import django
-from django.db.models import Q
+from django.db.models import Q, Count, F
+from django.forms.formsets import ORDERING_FIELD_NAME
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -95,3 +96,58 @@ def get_last_sold_products():
     if last_order:
         return f"Last sold products: {', '.join([product.name for product in last_order.products.all()])}"
     return ''
+
+
+def get_top_products():
+    # Get products that appear in ANY order (completed or not)
+    top_products = (
+        Product.objects
+        .annotate(
+            times_sold=Count('product_orders')  # Count orders containing the product
+        )
+        .filter(times_sold__gt=0)  # Exclude never-ordered products
+        .order_by('-times_sold', 'name')[:5]  # Get top 5 after ordering
+    )
+
+    if not top_products:
+        return ""
+
+    result = ["Top products:"]
+    for product in top_products:
+        result.append(f"{product.name}, sold {product.times_sold} times")
+
+
+    return '\n'.join(result)
+
+
+def apply_discounts():
+
+    orders_to_discount = (
+        Order.objects
+        .filter(is_completed=False)
+        .annotate(num_products=Count('products'))
+        .filter(num_products__gt=2)
+    )
+
+    update_count = orders_to_discount.update(
+        total_price=F('total_price') * 0.9
+    )
+
+    return f"Discount applied to {update_count} orders."
+
+
+def complete_order():
+    to_complete = Order.objects.filter(is_completed=False).order_by('creation_date').first()
+    if to_complete:
+
+        for product in to_complete.products.all():
+            product.in_stock -= 1
+            product.save()
+
+        to_complete.products.filter(in_stock=0).update(is_available=False)
+        to_complete.is_completed = True
+        to_complete.save()
+
+        return f"Order has been completed!"
+    return ''
+
