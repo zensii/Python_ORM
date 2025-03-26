@@ -77,8 +77,26 @@ class BillingInfo(models.Model):
 
 class Invoice(models.Model):
     invoice_number = models.CharField(max_length=20, unique=True)
-    billing_info = models.OneToOneField(BillingInfo, on_delete=models.CASCADE)
+    billing_info = models.OneToOneField(
+        BillingInfo,
+        on_delete=models.CASCADE,
+        related_name='invoice'
+    )
 
+    @classmethod
+    def get_invoices_with_prefix(cls, prefix: str):
+
+        return cls.objects.filter(invoice_number__startswith=prefix)
+
+    @classmethod
+    def get_invoices_sorted_by_number(cls):
+
+        return cls.objects.order_by('invoice_number')
+
+    @classmethod
+    def get_invoice_with_billing_info(cls, invoice_number: str):
+
+        return cls.objects.select_related('billing_info').get(invoice_number=invoice_number)
 
 class Technology(models.Model):
     name = models.CharField(max_length=100)
