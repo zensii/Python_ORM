@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -108,10 +109,18 @@ class Project(models.Model):
     description = models.TextField()
     technologies_used = models.ManyToManyField(Technology, related_name='projects')
 
+    def get_programmers_with_technologies(self):
+
+        return self.programmers.prefetch_related('projects__technologies_used')
+
 
 class Programmer(models.Model):
     name = models.CharField(max_length=100)
     projects = models.ManyToManyField(Project, related_name='programmers')
+
+    def get_projects_with_technologies(self):
+
+        return self.projects.prefetch_related('technologies_used')
 
 
 class Task(models.Model):
@@ -127,6 +136,36 @@ class Task(models.Model):
     is_completed = models.BooleanField(default=False)
     creation_date = models.DateField()
     completion_date = models.DateField()
+
+    @classmethod
+    def ongoing_high_priority_tasks(cls):
+
+        return cls.objects.filter(
+            priority='High',
+            is_completed=False,
+            completion_date__gt=models.F('creation_date')
+        )
+
+    @classmethod
+    def completed_mid_priority_tasks(cls):
+
+        return cls.objects.filter(
+            priority='Medium',
+            is_completed=True,
+        )
+
+    @classmethod
+    def search_tasks(cls, query: str):
+
+        return cls.objects.filter(models.Q(title__icontains=query) | models.Q(description__icontains=query))
+
+    @classmethod
+    def recent_completed_tasks(cls, days: int):
+
+        return cls.objects.filter(
+            is_completed=True,
+            completion_date__gte=models.F('creation_date') - timedelta(days=days),
+        )
 
 
 class Exercise(models.Model):
