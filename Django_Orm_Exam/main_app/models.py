@@ -50,6 +50,8 @@
 from django.core.validators import MaxValueValidator, MinValueValidator, MinLengthValidator
 from django.db import models
 
+from main_app.managers import PublisherManager
+
 
 class Publisher(models.Model):
     name = models.CharField(
@@ -67,7 +69,7 @@ class Publisher(models.Model):
         default=0.0,
         validators=[MinValueValidator(0.0), MaxValueValidator(5.0)],
     )
-
+    objects = PublisherManager()
 
 class Author(models.Model):
     name = models.CharField(
