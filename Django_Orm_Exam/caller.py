@@ -1,6 +1,6 @@
 import os
 import django
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.aggregates import Count, Avg
 
 # Set up Django
@@ -9,6 +9,7 @@ django.setup()
 
 # Import your models here
 from main_app.models import Publisher,Book,Author
+
 
 def populate_db():
 
@@ -148,25 +149,45 @@ def get_top_main_author():
             f"books average rating: {top_author.authored_books.aggregate(Avg('rating'))['rating__avg']:.1f}")
 
 
-# def get_authors_by_books_count():
-#     pass
-#
-#
-# def get_top_bestseller():
-#     pass
-#
-#
-# def increase_price():
-#     pass
+#-------------------------------------------------------------------------------------------------------------------
+
+def get_authors_by_books_count():
+
+    if not Author.objects.exists() or not Book.objects.exists():
+        return "No results."
+
+    top_three = Author.objects.annotate(
+        total_books = Count('co_authored_books') + Count('authored_books')
+    ).order_by('-total_books', 'name')[:3]
+
+    return '\n'.join([f"{author.name} authored {author.total_books} books." for author in top_three])
 
 
+def get_top_bestseller():
+
+    best = Book.objects.filter(
+        is_bestseller=True
+    ).order_by('-rating', 'title').first()
+
+    if not best:
+        return "No results."
+
+    best_co_authors = best.co_authors.all().order_by('name').values_list('name', flat=True)
+
+    return (f"Top bestseller: {best.title}, "
+            f"rating: {best.rating:.1f}. "
+            f"Main author: {best.main_author.name}. "
+            f"Co-authors: {', '.join(best_co_authors) if best_co_authors else 'N/A'}.")
 
 
+def increase_price():
 
+    increased = Book.objects.filter(publication_date__year=2025, rating__gte=4.0).update(price=F('price') * 1.2)
 
+    if increased > 0:
+        return f"Prices increased for {increased} books."
 
-
-
+    return "No changes in price."
 
 
 

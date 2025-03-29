@@ -93,13 +93,13 @@ class Book(models.Model):
         Author,
         on_delete=models.CASCADE,
         related_name='authored_books',
+
     )
     co_authors = models.ManyToManyField(
         Author,
         related_name='co_authored_books',
         blank=True,
     )
-
 
 
     def save(self, *args, **kwargs):
