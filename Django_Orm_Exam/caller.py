@@ -1,7 +1,7 @@
 import os
 import django
-
-
+from django.db.models import Q
+from django.db.models.aggregates import Count, Avg
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -103,3 +103,73 @@ def populate_db():
         publisher=publisher2,
         main_author=author3
     )
+
+def get_publishers(search_string=None):
+
+    if search_string is not None:
+
+        result = Publisher.objects.filter(
+            Q(name__icontains=search_string) | Q(country__icontains=search_string)
+        ).order_by('-rating', 'name')
+
+        if result:
+            return ('\n'.join(f"Publisher: "
+                    f"{publisher.name}, "
+                    f"country: {publisher.country if publisher.country != 'TBC' else 'Unknown'}, "
+                    f"rating: {publisher.rating:.1f}"
+                    for publisher in result))
+
+        return "No publishers found."
+
+    return "No search criteria."
+
+
+def get_top_publisher():
+
+    if not Publisher.objects.exists():
+        return "No publishers found."
+
+    top = Publisher.objects.get_publishers_by_books_count().first()
+
+    return f"Top Publisher: {top.name} with {top.num_books} books."
+
+
+def get_top_main_author():
+
+    if not Author.objects.exists() or not Book.objects.exists():
+        return "No results."
+
+    top_author = Author.objects.annotate(
+        num_books=Count('authored_books')
+    ).order_by('-num_books', 'name').first()
+
+    return (f"Top Author: {top_author.name}, "
+            f"own book titles: {', '.join([book.title for book in top_author.authored_books.order_by('title')])}, "
+            f"books average rating: {top_author.authored_books.aggregate(Avg('rating'))['rating__avg']:.1f}")
+
+
+# def get_authors_by_books_count():
+#     pass
+#
+#
+# def get_top_bestseller():
+#     pass
+#
+#
+# def increase_price():
+#     pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
